@@ -37,7 +37,6 @@ HEADERS          += lemonator_proxy.hpp
 
 # add pybind
 SEARCH           += $(TI-SOFTWARE)/pybind11/include
-INCLUDES         += -I"C:\Program Files (x86)\Python\include"
 
 # set BMPTK to the bmptk subdirectory
 BMPTK            := C:/ti-software/bmptk

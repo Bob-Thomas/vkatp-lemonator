@@ -9,10 +9,7 @@
 #############################################################################
 
 # settings for native (PC) projects
-TARGET            := native
-
-# enable exeptions (disabled by default by bmptk)
-£ PROJECT_CPP_FLAGS += -fexceptions -frtti
+TARGET            := pyd
 
 # add the RS-232 library
 SEARCH            += $(RELATIVE)/../RS-232

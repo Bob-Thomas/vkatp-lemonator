@@ -19,11 +19,6 @@ HEADERS :=
 # other places to look for files for this project
 SEARCH  := 
 
-# required for pybind11
-CPP_RTTI          ?= -frtti 
-CPP_EXCEPTIONS    ?= -fexceptions 
-CPP_LANGUAGE      ?= -std=gnu++14
-
 # set RELATIVE to the next higher directory and defer to the Makefile.due
 RELATIVE := $(RELATIVE)../
-include $(RELATIVE)Makefile.native
+include $(RELATIVE)Makefile.pyd
