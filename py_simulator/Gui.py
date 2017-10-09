@@ -243,7 +243,7 @@ class GUI:
                     for keypadButton in self.__keypad.getButtons():
                         if pygame.Rect(keypadButton['rect']).collidepoint(pos):
                             print(keypadButton['text'])
-                    
+
             self.update()
             sleep(0.25)
 
