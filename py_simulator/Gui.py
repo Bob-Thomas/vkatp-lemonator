@@ -6,6 +6,28 @@ from Effector import Heater
 from Sensor import Sensor
 from time import sleep
 
+class Keypad:
+    def __init__(self):
+        self.buttons = []
+        self.buttons.append({'text' : '1', 'rect' : (680, 45, 30, 30), 'color' : (66, 134, 244), 'textPos' : (692, 50)})
+        self.buttons.append({'text' : '2', 'rect' : (720, 45, 30, 30), 'color' : (66, 134, 244), 'textPos' : (732, 50)})
+        self.buttons.append({'text' : '3', 'rect' : (760, 45, 30, 30), 'color' : (66, 134, 244), 'textPos' : (772, 50)})
+        self.buttons.append({'text' : 'A', 'rect' : (800, 45, 30, 30), 'color' : (239, 36, 14), 'textPos' : (812, 50)})
+        self.buttons.append({'text' : '4', 'rect' : (680, 85, 30, 30), 'color' : (66, 134, 244), 'textPos' : (692, 90)})
+        self.buttons.append({'text' : '5', 'rect' : (720, 85, 30, 30), 'color' : (66, 134, 244), 'textPos' : (732, 90)})
+        self.buttons.append({'text' : '6', 'rect' : (760, 85, 30, 30), 'color' : (66, 134, 244), 'textPos' : (772, 90)})
+        self.buttons.append({'text' : 'B', 'rect' : (800, 85, 30, 30), 'color' : (239, 36, 14), 'textPos' : (812, 90)})
+        self.buttons.append({'text' : '7', 'rect' : (680, 125, 30, 30), 'color' : (66, 134, 244), 'textPos' : (692, 130)})
+        self.buttons.append({'text' : '8', 'rect' : (720, 125, 30, 30), 'color' : (66, 134, 244), 'textPos' : (732, 130)})
+        self.buttons.append({'text' : '9', 'rect' : (760, 125, 30, 30), 'color' : (66, 134, 244), 'textPos' : (772, 130)})
+        self.buttons.append({'text' : 'C', 'rect' : (800, 125, 30, 30), 'color' : (239, 36, 14), 'textPos' : (812, 130)})
+        self.buttons.append({'text' : '*', 'rect' : (680, 165, 30, 30), 'color' : (239, 36, 14), 'textPos' : (692, 170)})
+        self.buttons.append({'text' : '0', 'rect' : (720, 165, 30, 30), 'color' : (66, 134, 244), 'textPos' : (732, 170)})
+        self.buttons.append({'text' : '#', 'rect' : (760, 165, 30, 30), 'color' : (239, 36, 14), 'textPos' : (782, 170)})
+        self.buttons.append({'text' : 'D', 'rect' : (800, 165, 30, 30), 'color' : (239, 36, 14), 'textPos' : (812, 170)})
+
+    def getButtons(self):
+        return self.buttons
 
 class GUI:
     def __init__(self, plant = None, controller = None, monitor = None):
@@ -15,7 +37,7 @@ class GUI:
         self.__timestamp = 0
         self.__run = False
         self.__tap = False
-
+        self.__keypad = Keypad()
         # Initialise PyGame
         pygame.init()
         pygame.font.init()
@@ -57,73 +79,14 @@ class GUI:
         pygame.draw.rect(self.__screen, (240, 120, 0), [500, 50, 130, 30])
 
         #KEYPAD
-        #1
-        pygame.draw.rect(self.__screen, (66, 134, 244), [680, 45, 30, 30])
-        label = self.__font.render("1", False, (255, 255, 255))
-        self.__screen.blit(label, [692, 50])
-        #2
-        pygame.draw.rect(self.__screen, (66, 134, 244), [720, 45, 30, 30])
-        label = self.__font.render("2", False, (255, 255, 255))
-        self.__screen.blit(label, [732, 50])
-        #3
-        pygame.draw.rect(self.__screen, (66, 134, 244), [760, 45, 30, 30])
-        label = self.__font.render("3", False, (255, 255, 255))
-        self.__screen.blit(label, [772, 50])
-        #A
-        pygame.draw.rect(self.__screen, (239, 36, 14), [800, 45, 30, 30])
-        label = self.__font.render("A", False, (255, 255, 255))
-        self.__screen.blit(label, [812, 50])
+        for keyPadButton in self.__keypad.getButtons():
+            pygame.draw.rect(self.__screen, keyPadButton['color'], keyPadButton['rect'])
+            label = self.__font.render(keyPadButton['text'], False, (255, 255, 255))
+            self.__screen.blit(label, keyPadButton['textPos'])
 
-        #4
-        pygame.draw.rect(self.__screen, (66, 134, 244), [680, 85, 30, 30])
-        label = self.__font.render("4", False, (255, 255, 255))
-        self.__screen.blit(label, [692, 90])
-        #5
-        pygame.draw.rect(self.__screen, (66, 134, 244), [720, 85, 30, 30])
-        label = self.__font.render("5", False, (255, 255, 255))
-        self.__screen.blit(label, [732, 90])
-        #6
-        pygame.draw.rect(self.__screen, (66, 134, 244), [760, 85, 30, 30])
-        label = self.__font.render("6", False, (255, 255, 255))
-        self.__screen.blit(label, [772, 90])
-        #B
-        pygame.draw.rect(self.__screen, (239, 36, 14), [800, 85, 30, 30])
-        label = self.__font.render("B", False, (255, 255, 255))
-        self.__screen.blit(label, [812, 90])
-
-        #7
-        pygame.draw.rect(self.__screen, (66, 134, 244), [680, 125, 30, 30])
-        label = self.__font.render("7", False, (255, 255, 255))
-        self.__screen.blit(label, [692, 130])
-        #8
-        pygame.draw.rect(self.__screen, (66, 134, 244), [720, 125, 30, 30])
-        label = self.__font.render("8", False, (255, 255, 255))
-        self.__screen.blit(label, [732, 130])
-        #9
-        pygame.draw.rect(self.__screen, (66, 134, 244), [760, 125, 30, 30])
-        label = self.__font.render("9", False, (255, 255, 255))
-        self.__screen.blit(label, [772, 130])
-        #C
-        pygame.draw.rect(self.__screen, (239, 36, 14), [800, 125, 30, 30])
-        label = self.__font.render("C", False, (255, 255, 255))
-        self.__screen.blit(label, [812, 125])
-
-        #*
-        pygame.draw.rect(self.__screen, (239, 36, 14), [680, 165, 30, 30])
-        label = self.__font.render("*", False, (255, 255, 255))
-        self.__screen.blit(label, [692, 165])
-        #0
-        pygame.draw.rect(self.__screen, (66, 134, 244), [720, 165, 30, 30])
-        label = self.__font.render("0", False, (255, 255, 255))
-        self.__screen.blit(label, [732, 165])
-        ##
-        pygame.draw.rect(self.__screen, (239, 36, 14), [760, 165, 30, 30])
-        label = self.__font.render("#", False, (255, 255, 255))
-        self.__screen.blit(label, [772, 165])
-        #D
-        pygame.draw.rect(self.__screen, (239, 36, 14), [800, 165, 30, 30])
-        label = self.__font.render("D", False, (255, 255, 255))
-        self.__screen.blit(label, [812, 165])
+        #LCD LED
+        pygame.draw.rect(self.__screen, (52, 191, 30), [680, 215, 200, 50])
+        #for each lcd letter, print
 
         pumpA = "Pump A: "+("on " if self.__plant._effectors["pumpA"].isOn() else "off")
         label = self.__font.render(pumpA, False, (240, 240, 240))
@@ -275,7 +238,12 @@ class GUI:
                             self.__plant._effectors["heater"].switchOff() if self.__plant._effectors["heater"].isOn() else self.__plant._effectors["heater"].switchOn()
                         elif 170 < pos[1] <= 200:
                             self.__tap = False if self.__tap else True
-
+                    print(pos)
+                    #keypad
+                    for keypadButton in self.__keypad.getButtons():
+                        if pygame.Rect(keypadButton['rect']).collidepoint(pos):
+                            print(keypadButton['text'])
+                    
             self.update()
             sleep(0.25)
 
