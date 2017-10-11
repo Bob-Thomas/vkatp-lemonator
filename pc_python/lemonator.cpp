@@ -15,8 +15,10 @@ PYBIND11_MODULE( lemonator, m ) {
         .export_values();
 
     py::class_< output_proxy >( m, "output_proxy" )
-        .def( "set", &output_proxy::set, "",
-            py::arg("v"), py::arg("buffering") = hwlib::buffering::unbuffered );
+        .def("set", &output_proxy::set, "",
+
+            py::arg("v"), py::arg("buffering") = hwlib::buffering::unbuffered )
+        .def("get", &output_proxy::get, "get pin state");
 
     py::class_< lcd_proxy >( m, "lcd_proxy" )
     .def( "putc", &lcd_proxy::putc, "",
@@ -38,7 +40,7 @@ PYBIND11_MODULE( lemonator, m ) {
         .def_readonly("lcd", &lemonator_proxy::p_lcd)
         .def_readonly("keypad", &lemonator_proxy::p_keypad)
         .def_readonly("distance", &lemonator_proxy::p_distance)
-        .def_readonly("color", &lemonator_proxy::p_color),
+        .def_readonly("color", &lemonator_proxy::p_color)
         .def_readonly("temperature", &lemonator_proxy::p_temperature)
         .def_readonly("reflex", &lemonator_proxy::p_reflex)
         //output proxies
