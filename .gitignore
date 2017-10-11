@@ -8,3 +8,4 @@ _codelite.workspace
 *.ld
 *.map
 bmptk_*_stack.c
+__pycache__

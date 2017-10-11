@@ -24,7 +24,7 @@ class Keypad:
         self.buttons.append({'text' : 'C', 'rect' : (800, 125, 30, 30), 'color' : (239, 36, 14), 'textPos' : (812, 130)})
         self.buttons.append({'text' : '*', 'rect' : (680, 165, 30, 30), 'color' : (239, 36, 14), 'textPos' : (692, 170)})
         self.buttons.append({'text' : '0', 'rect' : (720, 165, 30, 30), 'color' : (66, 134, 244), 'textPos' : (732, 170)})
-        self.buttons.append({'text' : '#', 'rect' : (760, 165, 30, 30), 'color' : (239, 36, 14), 'textPos' : (782, 170)})
+        self.buttons.append({'text' : '#', 'rect' : (760, 165, 30, 30), 'color' : (239, 36, 14), 'textPos' : (772, 170)})
         self.buttons.append({'text' : 'D', 'rect' : (800, 165, 30, 30), 'color' : (239, 36, 14), 'textPos' : (812, 170)})
 
     def getButtons(self):
@@ -43,6 +43,7 @@ class GUI:
         pygame.init()
         pygame.font.init()
         self.__font = pygame.font.Font('font/OpenSans-Regular.ttf', 12)
+        self.__big_font = pygame.font.Font('font/OpenSans-Regular.ttf', 26)
         # Define a screen
         self.__screen = pygame.display.set_mode((940, 400))
         pygame.display.set_caption('Liquid Mixer Simulator GUI')
@@ -53,7 +54,7 @@ class GUI:
         self.__icons["a"] = VesselIcon(self.__screen, 100, 50, self.__plant._vessels["a"])
         self.__icons["b"] = VesselIcon(self.__screen, 300, 50, self.__plant._vessels["b"])
         self.__icons["mix"] = VesselIcon(self.__screen, 200, 125, self.__plant._vessels["mix"])
-        self.__icons["heater"] = HeaterIcon(self.__screen, 200, 185, self.__plant._effectors["heater"]._value)
+        self.__icons["heater"] = HeaterIcon(self.__screen, 200, 185, self.__plant._effectors["heater"].get)
         self.__icons["temperature"] = SensorIcon(self.__screen, 275, 125, self.__plant._sensors["temperature"].read_mc, "°C",  "Temperature")
         self.__icons["distance"] = SensorIcon(self.__screen, 275, 150, self.__plant._sensors["distance"].read_mm, "ml", "distance")
         self.__icons["color"] = SensorIcon(self.__screen, 275, 175, self.__plant._sensors["color"].read_rgb, "%", "Colour")
@@ -86,24 +87,37 @@ class GUI:
             self.__screen.blit(label, keyPadButton['textPos'])
 
         #LCD LED
-        pygame.draw.rect(self.__screen, (52, 191, 30), [680, 215, 200, 50])
+        pygame.draw.rect(self.__screen, (52, 191, 30), [680, 215, 145, 50])
         #for each lcd letter, print
+        for idx,text in enumerate(self.__plant._display.get_text(), start=0):
+            label = self.__font.render(''.join(text), False, (0, 0, 0))
+            self.__screen.blit(label, [685, 215+(idx*12)])
 
-        water_pump = "Pump A: "+("on " if self.__plant._effectors["water_pump"]._value else "off")
+
+        water_pump = "water pump: "+("on " if self.__plant._effectors["water_pump"].get() else "off")
         label = self.__font.render(water_pump, False, (240, 240, 240))
         self.__screen.blit(label, [530, 55])
         pygame.draw.rect(self.__screen, (240, 120, 0), [500, 90, 130, 30])
-        sirup_pump = "Pump B: "+("on " if self.__plant._effectors["sirup_pump"]._value else "off")
+        sirup_pump = "sirup pump: "+("on " if self.__plant._effectors["sirup_pump"].get() else "off")
         label = self.__font.render(sirup_pump, False, (240, 240, 240))
         self.__screen.blit(label, [530, 95])
         pygame.draw.rect(self.__screen, (240, 120, 0), [500, 130, 130, 30])
-        heater = "Heater: "+("on " if self.__plant._effectors["heater"]._value else "off")
+        heater = "Heater: "+("on " if self.__plant._effectors["heater"].get() else "off")
         label = self.__font.render(heater, False, (240, 240, 240))
         self.__screen.blit(label, [530, 135])
         pygame.draw.rect(self.__screen, (240, 120, 0), [500, 170, 130, 30])
         tap = "Tap: "+("on " if self.__tap else "off")
         label = self.__font.render(tap, False, (240, 240, 240))
         self.__screen.blit(label, [530, 175])
+
+        self.add_cup = pygame.draw.rect(self.__screen, (240, 120, 0), [160, 0, 130, 30])
+        self.__screen.blit(
+            self.__font.render("%s" % ("Remove cup" if self.__plant._sensors["reflex"].get() else "Insert cup"), False, (240, 240, 240)),
+        [200, 0])
+
+        pygame.draw.circle(self.__screen, (0, 255, 0), (226,90), 7, 0) if self.__plant._effectors['led_green'].get() else pygame.draw.circle(self.__screen, (0, 0, 0), (226,90), 7, 0)
+
+        pygame.draw.circle(self.__screen, (255, 255, 0), (226,70), 7, 0) if self.__plant._effectors['led_yellow'].get() else pygame.draw.circle(self.__screen, (0, 0, 0), (226,70), 7, 0)
 
     def drawGraphs(self) -> None:
         scale = 140 / 3.3
@@ -195,8 +209,9 @@ class GUI:
 
     def update(self) -> None:
         self.__screen.fill((250, 250, 250))
-        for icon in self.__icons.values():
-            icon.draw()
+        for (name, icon) in self.__icons.items():
+            if not (name == 'mix' and not self.__plant._sensors['reflex'].get()):
+                icon.draw()
         self.drawPipes()
 
         self.drawButtons()
@@ -232,33 +247,30 @@ class GUI:
                             if not self.__run:
                                 self.step()
                         elif 50 < pos[1] <= 80:
-                            if self.__plant._effectors["water_pump"]._value:
+                            if self.__plant._effectors["water_pump"].get():
                                 self.__plant._effectors["water_pump"].set(0)
-                                self.__plant._effectors["water_pump"]._value = 0
                             else:
                                 self.__plant._effectors["water_pump"].set(1)
-                                self.__plant._effectors["water_pump"]._value = 1
                         elif 90 < pos[1] <= 120:
-                            if self.__plant._effectors["sirup_pump"]._value:
+                            if self.__plant._effectors["sirup_pump"].get():
                                 self.__plant._effectors["sirup_pump"].set(0)
-                                self.__plant._effectors["sirup_pump"]._value = 0
                             else:
                                 self.__plant._effectors["sirup_pump"].set(1)
-                                self.__plant._effectors["sirup_pump"]._value = 1
                         elif 130 < pos[1] <= 160:
-                            if self.__plant._effectors["heater"]._value:
+                            if self.__plant._effectors["heater"].get():
                                 self.__plant._effectors["heater"].set(0)
-                                self.__plant._effectors["heater"]._value = 0
                             else:
                                 self.__plant._effectors["heater"].set(1)
-                                self.__plant._effectors["heater"]._value = 1
                         elif 170 < pos[1] <= 200:
                             self.__tap = False if self.__tap else True
                     print(pos)
                     #keypad
                     for keypadButton in self.__keypad.getButtons():
                         if pygame.Rect(keypadButton['rect']).collidepoint(pos):
-                            print(keypadButton['text'])
+                            self.__plant._sensors['keypad'].putc(keypadButton['text'])
+                    if pygame.Rect(self.add_cup).collidepoint(pos):
+                        self.__plant._sensors['reflex']._value = not self.__plant._sensors['reflex']._value
+                        self.__plant._vessels['mix'].empty()
 
             self.update()
             sleep(0.1)
@@ -283,20 +295,19 @@ class VesselIcon(Icon):
 
     def draw(self) -> None:
         color = self._vessel.getColour()
-        distance = self._vessel.getFluidAmount() / liquidMax * 100
-
-        pygame.draw.rect(self._screen, (color*2.55, 0, 255-color*2.55), [self._x, self._y+51-(distance*0.4), 50, distance*0.4])
+        distance = self._vessel.getFluidAmount() / full_cup
+        pygame.draw.rect(self._screen, (color*2.55, 0, 255-color*2.55), [self._x, self._y+51-(distance*0.6), 50, distance*0.6])
         pygame.draw.lines(self._screen, (0, 0, 0), False, [(self._x, self._y), (self._x, self._y+50), (self._x+50, self._y+50), (self._x+50, self._y)],2)
 
 
 class HeaterIcon(Icon):
-    def __init__(self, screen: pygame.display, x: int, y: int, heater: bool) -> None:
+    def __init__(self, screen: pygame.display, x: int, y: int, heater: callable) -> None:
         Icon.__init__(self, screen, x, y)
         self._heater = heater
 
     def draw(self) -> None:
         pygame.draw.line(self._screen, (0, 0, 0), [self._x, self._y], [self._x+50, self._y], 4)
-        if self._heater:
+        if self._heater():
             x = self._x + 2
             for i in range(6):
                 pygame.draw.lines(self._screen, (0,0,0), True, [(x, self._y-2), (x+3, self._y-6), (x+6, self._y-2)], 2)

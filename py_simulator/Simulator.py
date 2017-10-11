@@ -19,13 +19,15 @@ from simulator_interface.lemonator import Lemonator
 
 class Plant:
 
-    def __init__(self, effectors, sensors):
+    def __init__(self, effectors, sensors, display):
         self._vessels = {'mix': MixtureVessel(
-            amount=500, temperature=36, colour=50)}
+            amount=0, temperature=0, colour=0)}
         self._vessels['a'] = Vessel(
             colour=0, amount=liquidMax, flowTo=self._vessels['mix'])
         self._vessels['b'] = Vessel(
             colour=100, amount=liquidMax, flowTo=self._vessels['mix'])
+
+        self._display = display
 
         self._sensors = sensors
         self._effectors = effectors
@@ -61,8 +63,8 @@ class Plant:
 
 class Simulator:
 
-    def __init__(self, gui: bool=False):
-        self.__Simulator__lemonator = Lemonator()
+    def __init__(self, gui: bool=False, lemonator: Lemonator = None):
+        self.__Simulator__lemonator = lemonator
         self.__Simulator__sensors = {
             'keypad': self.__Simulator__lemonator.keypad,
             'distance': self.__Simulator__lemonator.distance,
@@ -80,7 +82,8 @@ class Simulator:
             'led_yellow': self.__Simulator__lemonator.led_yellow,
             'heater': self.__Simulator__lemonator.heater,
         }
-        self._Simulator__plant = Plant( self.__Simulator__effectors, self.__Simulator__sensors)
+
+        self._Simulator__plant = Plant( self.__Simulator__effectors, self.__Simulator__sensors, self.__Simulator__lemonator.lcd)
         self._Simulator__controller = Controller(self.__Simulator__lemonator)
         self._Simulator__monitor = Monitor(
             self.__Simulator__sensors, self.__Simulator__effectors)
@@ -99,7 +102,6 @@ class Simulator:
                 print(timestamp, '-' * 40)
                 self._Simulator__plant.update()
                 self._Simulator__controller.update()
-                self._Simulator__monitor.update()
                 self._Simulator__plant.printState()
 
         else:
