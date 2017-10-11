@@ -35,7 +35,7 @@ class sensor_proxy(Sensor):
         return self.readValue()
 
     def getc(self):
-        return 'c'
+        pass
 
     def get(self):
         return self.readValue()

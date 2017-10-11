@@ -24,6 +24,9 @@ class output_proxy(Effector):
     def set(self, v):
         Effector.switchOn(self) if v else Effector.switchOff(self)
 
+    def get(self):
+        return self._value
+
 
 
 class Pump(output_proxy):
@@ -34,7 +37,7 @@ class Pump(output_proxy):
     def update(self, vessel):
         if self._pressure > 100 and vessel != None:
             vessel.flow()
-        if self._value:
+        if self.get():
             self._pressure = min(self._pressure + 100 / pressureRampUp, 100)
             if self._pressure == 100:
                 self._pressure = 200
@@ -44,7 +47,7 @@ class Pump(output_proxy):
 
 class Heater(output_proxy):
     def update(self, vessel) -> None:
-        if self._value:
+        if self.get():
             vessel.heat(True)
         else:
             vessel.heat(False)
