@@ -87,7 +87,7 @@ class GUI:
             self.__screen.blit(label, keyPadButton['textPos'])
 
         #LCD LED
-        pygame.draw.rect(self.__screen, (52, 191, 30), [680, 215, 145, 50])
+        pygame.draw.rect(self.__screen, (52, 191, 30), [680, 215, 160, 50])
         #for each lcd letter, print
         for idx,text in enumerate(self.__plant._display.get_text(), start=0):
             label = self.__font.render(''.join(text), False, (0, 0, 0))

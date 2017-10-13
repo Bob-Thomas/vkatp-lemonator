@@ -25,7 +25,9 @@ levelReaction = 0.07
 colourReaction = 0.05
 
 
-full_cup = 45 # 44mm 25cl
+full_cup = 40 # 44mm 25cl
 empty_cup = 88
 full_vessel = full_cup*10
-
+required_percentage_sirup = 20
+required_sirup_in_mm = (full_cup / 100) * required_percentage_sirup
+required_water_in_mm = full_cup - required_sirup_in_mm

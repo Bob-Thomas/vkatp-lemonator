@@ -9,5 +9,8 @@
 from lemonator import lemonator as hw_lemonator
 from simulator_interface.lemonator import Lemonator as sw_lemonator
 from Simulator import Simulator
-
-Simulator(True, sw_lemonator()).run()
+from Controller import Controller
+#Simulator(True, sw_lemonator()).run()
+c = Controller(hw_lemonator(8))
+while True:
+    c.update()

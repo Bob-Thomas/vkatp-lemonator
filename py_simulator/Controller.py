@@ -21,14 +21,18 @@ class States(Enum):
     MIXING = 6
     MIX_DONE = 7
     ERROR = 8
+from ctypes import cdll, c_char_p
 class Controller:
 
     def __init__(self, lemonator):
         self.lemonator = lemonator
         self.state = States.START
-        self.lemonator.lcd << "      Lemonator V1.0\n\n"
+        penis = "      Lemonator V1.0\n\n"
+        self.lemonator.lcd << penis
+
     def update(self) -> None:
         if self.state == States.START:
+            self.clear_display()
             if self.lemonator.reflex.get():
                 self.state = States.CUP_PRESENT
             else:
@@ -61,19 +65,31 @@ class Controller:
                 return
 
         if self.state == States.STARTING_MIX:
-            self.lemonator.lcd << "\r      Mix starting"
+            self.lemonator.lcd << "\r      Mix starting  \n"
             self.state = States.MIXING
 
+        if self.state == States.MIX_DONE:
+            self.lemonator.lcd << "\r" + ''.join([" " for x in range(1, 21)])
+            self.lemonator.lcd << "\t0103 Please take cup."
+            self.lemonator.lcd << "\t0203 Enjoy!"
+            if not self.lemonator.reflex.get():
+                self.state = States.START
+
         if self.state == States.MIXING:
-            print(self.lemonator.distance.read_mm())
             if self.lemonator.distance.read_mm() > full_cup-10:
-                self.state == States.START
-                self.set_water_pump(0)
+                self.disable_pumps()
+                self.state = States.MIX_DONE
                 return
-            self.set_water_pump(1)
-
-
-
+            else:
+                if self.lemonator.distance.read_mm() < required_sirup_in_mm:
+                    self.set_water_pump(0)
+                    self.set_sirup_pump(1)
+                else:
+                    self.set_water_pump(1)
+                    self.set_sirup_pump(0)
+            distance = round((20/100)*(self.lemonator.distance.read_mm() / ((full_cup - 10)/100)))
+            print(distance)
+            self.lemonator.lcd << "\r" + ''.join([str('#') for x in range(1, distance)])
 
     def disable_pumps(self) -> None:
         self.set_sirup_pump(0)
@@ -86,3 +102,6 @@ class Controller:
     def set_sirup_pump(self, v) -> None:
         self.lemonator.sirup_valve.set(not v)
         self.lemonator.sirup_pump.set(v)
+
+    def clear_display(self):
+        self.lemonator.lcd << "\f      Lemonator V1.0\n\n"
