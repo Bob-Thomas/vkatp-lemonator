@@ -15,7 +15,7 @@ levelConversion = 0.1     # V/cm; 0V is empty
 colourConversion = 0.033 # 0.00V = value 0 (pitch black) - 3.3 V = value 100 (bright white); value/lightness score (HSV)
 
 """Set Points: these indicate the desired values for the dimensions of the resulting mixture"""
-levelSetPoint = 1.6 # cm liquid (0.8 = 500ml)
+levelSetPoint = 44 # cm liquid (0.8 = 500ml)
 colourSetPoint = 1.65 # % value
 tempSetPoint = 2.0 # degrees celsius
 

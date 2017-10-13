@@ -81,13 +81,13 @@ class Keypad(sensor_proxy):
 
 class Lemonator():
     def __init__(self):
-        self.water_pump = Pump()
+        self.water_pump = output_proxy()
         self.water_valve = output_proxy()
-        self.sirup_pump = Pump()
+        self.sirup_pump = output_proxy()
         self.sirup_valve = output_proxy()
         self.led_green = output_proxy()
         self.led_yellow = output_proxy()
-        self.heater = Heater()
+        self.heater = output_proxy()
 
         self.keypad = Keypad()
         self.distance = distance_sensor()

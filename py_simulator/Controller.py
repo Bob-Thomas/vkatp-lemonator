@@ -65,6 +65,11 @@ class Controller:
             self.state = States.MIXING
 
         if self.state == States.MIXING:
+            print(self.lemonator.distance.read_mm())
+            if self.lemonator.distance.read_mm() > full_cup-10:
+                self.state == States.START
+                self.set_water_pump(0)
+                return
             self.set_water_pump(1)
 
 

@@ -71,13 +71,11 @@ class color_sensor(sensor_proxy):
 class distance_sensor(sensor_proxy):
     def __init__(self):
         Sensor.__init__(self)
-        self._unitOfMeasure = 'ml'
+        self._unitOfMeasure = 'mm'
 
     def update(self, vessel) -> None:
         if type(vessel) != None:
-            level = vessel.getFluidAmount()
-            height = level / pi / 10 / 10
-            self._value = height * levelConversion
+            self._value = vessel.getFluidAmount()
 
     def _convertToValue(self) -> float:
         return round(self._value / levelConversion * pi * 10 * 10, 2)
