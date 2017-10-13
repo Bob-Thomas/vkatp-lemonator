@@ -294,9 +294,10 @@ class VesselIcon(Icon):
         self._vessel = vessel
 
     def draw(self) -> None:
+        max_liquid = self._vessel.getMax()
         color = self._vessel.getColour()
-        distance = self._vessel.getFluidAmount() / full_cup
-        pygame.draw.rect(self._screen, (color*2.55, 0, 255-color*2.55), [self._x, self._y+51-(distance*0.6), 50, distance*0.6])
+        distance = (50/100)*(self._vessel.getFluidAmount() / (max_liquid/100))
+        pygame.draw.rect(self._screen, (color*2.55, 0, 255-color*2.55), [self._x, self._y+51-distance, 50, distance])
         pygame.draw.lines(self._screen, (0, 0, 0), False, [(self._x, self._y), (self._x, self._y+50), (self._x+50, self._y+50), (self._x+50, self._y)],2)
 
 

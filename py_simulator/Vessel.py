@@ -14,11 +14,15 @@ class Vessel:
     - Mixture vessel (has a tap, attached with only heater effector, all types of sensors).
     """
 
-    def __init__(self, amount=3000, colour=0, temperature=20, flowTo=None):
+    def __init__(self, amount=3000, max_liquid=full_vessel, colour=0, temperature=20, flowTo=None):
         self._amount = amount
         self._colour = colour
         self._temperature = temperature
         self._flowTo = flowTo
+        self._max_liquid = max_liquid
+
+    def getMax(self):
+        return self._max_liquid
 
     def getFluidAmount(self):
         return self._amount
@@ -55,8 +59,8 @@ class MixtureVessel(Vessel):
     - heat(True/False) (increases water temperature)
     """
 
-    def __init__(self, amount=0, colour=0, temperature=20):
-        Vessel.__init__(self, amount, colour, temperature)
+    def __init__(self, amount=0, max_liquid=full_cup, colour=0, temperature=20):
+        Vessel.__init__(self, amount,max_liquid, colour, temperature)
         self._heat = False
 
     def heat(self, state=False):

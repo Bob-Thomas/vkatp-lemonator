@@ -23,9 +23,9 @@ class Plant:
         self._vessels = {'mix': MixtureVessel(
             amount=0, temperature=0, colour=0)}
         self._vessels['a'] = Vessel(
-            colour=0, amount=liquidMax, flowTo=self._vessels['mix'])
+            colour=100, amount=full_vessel, flowTo=self._vessels['mix'])
         self._vessels['b'] = Vessel(
-            colour=100, amount=liquidMax, flowTo=self._vessels['mix'])
+            colour=0, amount=full_vessel, flowTo=self._vessels['mix'])
 
         self._display = display
 
@@ -39,17 +39,14 @@ class Plant:
         for sensor in self._sensors.values():
             sensor.update(self._vessels['mix'])
 
-        self._effectors['heater'].update(self._vessels['mix'])
+        if self._effectors['heater'].get():
+            self._vessels['mix'].heat()
 
-        self._effectors['water_pump'].update(self._vessels['a'])
-        self._effectors['water_valve'].update(self._vessels['a'])
+        if self._effectors['sirup_pump'].get() and not self._effectors['sirup_valve'].get():
+            self._vessels['a'].flow()
 
-        self._effectors['sirup_pump'].update(self._vessels['b'])
-        self._effectors['sirup_valve'].update(self._vessels['b'])
-
-        self._effectors['led_yellow'].update()
-        self._effectors['led_green'].update()
-
+        if self._effectors['water_pump'].get() and not self._effectors['water_valve'].get():
+            self._vessels['b'].flow()
 
     def printState(self) -> None:
         for sensor in self._sensors.values():
@@ -103,6 +100,7 @@ class Simulator:
                 self._Simulator__plant.update()
                 self._Simulator__controller.update()
                 self._Simulator__plant.printState()
+                self._Simulator__monitor.update()
 
         else:
             self._Simulator__gui.run()

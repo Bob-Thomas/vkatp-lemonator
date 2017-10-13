@@ -24,5 +24,8 @@ tempReaction = 0.05
 levelReaction = 0.07
 colourReaction = 0.05
 
+
 full_cup = 45 # 44mm 25cl
+empty_cup = 88
+full_vessel = full_cup*10
 

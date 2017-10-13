@@ -50,8 +50,11 @@ class Lcd(lcd_proxy):
         if c:
             new_text = list(self._text[self.index[0]])
             new_text[self.index[1]]  = c
-            self.index[1] += 1
-            self._text[self.index[0]] = new_text
+            try:
+                self.index[1] += 1
+                self._text[self.index[0]] = new_text
+            except IndexError as e:
+                print("index out of range")
 
 
 
