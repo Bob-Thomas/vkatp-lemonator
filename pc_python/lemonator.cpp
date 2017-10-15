@@ -22,7 +22,10 @@ PYBIND11_MODULE( lemonator, m ) {
 
     py::class_< lcd_proxy >( m, "lcd_proxy" )
     .def( "putc", &lcd_proxy::putc, "",
-        py::arg("c"));
+        py::arg("c"))
+    .def("__lshift__", [](lcd_proxy & stream, const char *s) {
+        stream << s;
+    }, py::is_operator());
 
     py::class_< sensor_proxy > (m, "sensor_proxy")
         .def("read_mc", &sensor_proxy::read_mc, "read temp in mili celsius")
