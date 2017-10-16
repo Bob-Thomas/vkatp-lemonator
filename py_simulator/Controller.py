@@ -18,10 +18,9 @@ class States(Enum):
     CUP_PRESENT = 2
     WAITING_FOR_INPUT = 3
     WAITING_FOR_CUP = 4
-    STARTING_MIX = 5
-    MIXING = 6
-    MIX_DONE = 7
-    ERROR = 8
+    MIXING = 5
+    MIX_DONE = 6
+    ERROR = 7
 
 class Controller:
     temp_distance = empty_cup
@@ -83,11 +82,8 @@ class Controller:
                 return
             value = self.lemonator.keypad.getc()
             if not value is '\0':
-                self.changeState(States.STARTING_MIX)
+                self.changeState(States.MIXING)
                 return
-
-        if self.state == States.STARTING_MIX:
-            self.changeState(States.MIXING)
 
         if self.state == States.MIX_DONE:
             if not self.lemonator.reflex.get():
