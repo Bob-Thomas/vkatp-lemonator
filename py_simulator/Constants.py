@@ -1,6 +1,6 @@
 
 """Constants for physical simulation"""
-flowRate = 1            # the amount of water flowing (in ml) from the mixture vessel per second when tap is open
+flowRate = 0.8          # the amount of water flowing (in ml) from the mixture vessel per second when tap is open
 heatRate = 1            # the amount of heat increase (in degrees celsius) in mixture vessel when heater is on
 temperatureDecay = 0.1    # amount of temperature loss (in degrees celsius) in mixture vessel when heater is off
 
@@ -25,9 +25,11 @@ levelReaction = 0.07
 colourReaction = 0.05
 
 
-full_cup = 40 # 44mm 25cl
+full_cup = 55 # 44mm 25cl
+expected_fill = full_cup - 10
 empty_cup = 88
+diff_liquids = empty_cup - expected_fill
 full_vessel = full_cup*10
-required_percentage_sirup = 20
-required_sirup_in_mm = (full_cup / 100) * required_percentage_sirup
-required_water_in_mm = full_cup - required_sirup_in_mm
+required_percentage_sirup = 50
+required_sirup_in_mm = empty_cup - round((expected_fill/100) * required_percentage_sirup)
+print(required_sirup_in_mm)

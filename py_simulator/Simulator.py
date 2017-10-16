@@ -83,7 +83,7 @@ class Simulator:
         self._Simulator__plant = Plant( self.__Simulator__effectors, self.__Simulator__sensors, self.__Simulator__lemonator.lcd)
         self._Simulator__controller = Controller(self.__Simulator__lemonator)
         self._Simulator__monitor = Monitor(
-            self.__Simulator__sensors, self.__Simulator__effectors)
+            self._Simulator__controller, self.__Simulator__sensors, self.__Simulator__effectors)
         if gui:
             self._Simulator__gui = GUI(
                 self._Simulator__plant, self._Simulator__controller, self._Simulator__monitor)
@@ -108,8 +108,11 @@ class Simulator:
 
 class Monitor:
 
-    def __init__(self, sensors: Dict[str, Sensor],
+    def __init__(self,
+                 controller: Controller,
+                 sensors: Dict[str, Sensor],
                  effectors: Dict[str, Effector]):
+        self._Monitor_controller = controller
         self._Monitor__sensors = sensors
         self._Monitor__effectors = effectors
         self._sensorReadings = {}
@@ -122,8 +125,13 @@ class Monitor:
 
     def update(self) -> None:
         for sensor in self._Monitor__sensors:
-            self._sensorReadings[sensor].append(
-                self._Monitor__sensors[sensor].readValue())
+            if sensor == 'distance':
+                self._sensorReadings[sensor].append(
+                    self._Monitor_controller.distance_filter()
+                )
+            else:
+                self._sensorReadings[sensor].append(
+                    self._Monitor__sensors[sensor].readValue())
 
         for effector in self._Monitor__effectors:
             self._effectorValues[effector].append(

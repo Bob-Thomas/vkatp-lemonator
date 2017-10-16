@@ -1,7 +1,7 @@
 from Constants import *
 from Vessel import Vessel, MixtureVessel
 from math import pi
-
+import random
 
 class Sensor:
     def __init__(self):
@@ -69,13 +69,17 @@ class color_sensor(sensor_proxy):
 
 
 class distance_sensor(sensor_proxy):
+    temp = 88
     def __init__(self):
         Sensor.__init__(self)
         self._unitOfMeasure = 'mm'
 
     def update(self, vessel) -> None:
         if type(vessel) != None:
-            self._value = vessel.getFluidAmount()
+            if random.randrange(9000) % 9 == 2:
+                self._value = random.randint(round(self._value)-200, round(self._value)+200)
+            else:
+              self._value = 88-vessel.getFluidAmount()
 
     def _convertToValue(self) -> float:
         return round(self._value / levelConversion * pi * 10 * 10, 2)

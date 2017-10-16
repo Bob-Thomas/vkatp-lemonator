@@ -56,7 +56,7 @@ class GUI:
         self.__icons["mix"] = VesselIcon(self.__screen, 200, 125, self.__plant._vessels["mix"])
         self.__icons["heater"] = HeaterIcon(self.__screen, 200, 185, self.__plant._effectors["heater"].get)
         self.__icons["temperature"] = SensorIcon(self.__screen, 275, 125, self.__plant._sensors["temperature"].read_mc, "°C",  "Temperature")
-        self.__icons["distance"] = SensorIcon(self.__screen, 275, 150, self.__plant._sensors["distance"].read_mm, "mm", "distance")
+        self.__icons["distance"] = SensorIcon(self.__screen, 275, 150, self.__controller.distance_filter, "mm", "distance")
         self.__icons["color"] = SensorIcon(self.__screen, 275, 175, self.__plant._sensors["color"].read_rgb, "%", "Colour")
 
         # Draw
@@ -87,7 +87,7 @@ class GUI:
             self.__screen.blit(label, keyPadButton['textPos'])
 
         #LCD LED
-        pygame.draw.rect(self.__screen, (52, 191, 30), [680, 215, 160, 50])
+        pygame.draw.rect(self.__screen, (52, 191, 30), [680, 215, 6*20, 12*4])
         #for each lcd letter, print
         for idx,text in enumerate(self.__plant._display.get_text(), start=0):
             label = self.__font.render(''.join(text), False, (0, 0, 0))
@@ -154,9 +154,9 @@ class GUI:
         # distance
         scale = 140 / 88
         pygame.draw.lines(self.__screen, (0, 0, 0), False, [(240, 240), (240, 380), (410, 380)])
-        label = self.__font.render("88", False, (0, 0, 0))
-        self.__screen.blit(label, [230, 380])
         label = self.__font.render("0", False, (0, 0, 0))
+        self.__screen.blit(label, [230, 380])
+        label = self.__font.render("88", False, (0, 0, 0))
         self.__screen.blit(label, [220, 230])
         x0 = 240
         pygame.draw.line(self.__screen, (240, 120, 0), [x0, y0 - (levelSetPoint * scale)], [x0 + 170, y0 - levelSetPoint * scale])

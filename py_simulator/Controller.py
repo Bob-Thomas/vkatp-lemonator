@@ -5,12 +5,13 @@
 # Embedded file name: .\Controller.py
 # Compiled at: 2017-08-29 16:53:26
 # Size of source mod 2**32: 1554 bytes
-from Effector import Effector
-from Sensor import Sensor, TemperatureSensor, LevelSensor, ColourSensor
-from Constants import *
-from typing import Dict
 import time
 from enum import Enum
+from typing import Dict
+
+from Constants import diff_liquids, empty_cup, expected_fill, full_cup, required_sirup_in_mm
+
+
 class States(Enum):
     START = 0
     NO_CUP = 1
@@ -21,75 +22,105 @@ class States(Enum):
     MIXING = 6
     MIX_DONE = 7
     ERROR = 8
-from ctypes import cdll, c_char_p
-class Controller:
 
+class Controller:
+    temp_distance = empty_cup
     def __init__(self, lemonator):
         self.lemonator = lemonator
-        self.state = States.START
-        penis = "      Lemonator V1.0\n\n"
-        self.lemonator.lcd << penis
+        self.changeState(States.START)
+
+    def changeState(self, state: States):
+        self.state = state
+        self.update_display()
+
+    def update_display(self):
+        self.lemonator.lcd << "\t0000"
+        for i in range(4):
+            self.lemonator.lcd << ' '.join([''] * 20)
+            if i < 3:
+                self.lemonator.lcd << "\n"
+        self.lemonator.lcd << "\t0000     Lemonator v1.0\n"
+
+        if self.state == States.WAITING_FOR_CUP:
+            self.lemonator.lcd << "\r Please insert cup  "
+        elif self.state == States.CUP_PRESENT or self.state == States.WAITING_FOR_INPUT:
+            self.lemonator.lcd << "\r Use keypad to start"
+        elif self.state == States.MIXING:
+            distance = round((100/100)*(empty_cup-self.distance_filter()) /diff_liquids*100) or 0
+            self.lemonator.lcd << "\r      Mix starting  \n"
+            self.lemonator.lcd << "\r              " + str(distance) + "%"
+        elif self.state == States.MIX_DONE:
+            self.lemonator.lcd << "\t0103 Please take."
+            self.lemonator.lcd << "\t0203 And Enjoy! :3"
 
     def update(self) -> None:
         if self.state == States.START:
-            self.clear_display()
             if self.lemonator.reflex.get():
-                self.state = States.CUP_PRESENT
+                self.changeState(States.CUP_PRESENT)
             else:
-                self.state = States.NO_CUP
+                self.changeState(States.NO_CUP)
 
         if self.state == States.MIXING and not self.lemonator.reflex.get():
-            self.state = States.NO_CUP
+            self.changeState(States.NO_CUP)
 
         if self.state == States.CUP_PRESENT:
-            self.lemonator.lcd << "\r Use keypad to start"
+            self.changeState(States.WAITING_FOR_INPUT)
             self.lemonator.led_green.set(1)
-            self.state = States.WAITING_FOR_INPUT
+
         if self.state == States.NO_CUP:
-            self.lemonator.lcd << "\r Please insert cup  "
+            self.changeState(States.WAITING_FOR_CUP)
             self.lemonator.led_green.set(0)
-            self.state = States.WAITING_FOR_CUP
+            self.disable_pumps()
+            self.temp_distance = 88
 
         if self.state == States.WAITING_FOR_CUP:
             if self.lemonator.reflex.get():
-                self.state = States.CUP_PRESENT
+                self.changeState(States.CUP_PRESENT)
 
         if self.state == States.WAITING_FOR_INPUT:
             if not self.lemonator.reflex.get():
-                self.state = States.NO_CUP
+                self.changeState(States.NO_CUP)
                 return
             value = self.lemonator.keypad.getc()
             if not value is '\0':
-                print('beep boop')
-                self.state = States.STARTING_MIX
+                self.changeState(States.STARTING_MIX)
                 return
 
         if self.state == States.STARTING_MIX:
-            self.lemonator.lcd << "\r      Mix starting  \n"
-            self.state = States.MIXING
+            self.changeState(States.MIXING)
 
         if self.state == States.MIX_DONE:
-            self.lemonator.lcd << "\r" + ''.join([" " for x in range(1, 21)])
-            self.lemonator.lcd << "\t0103 Please take cup."
-            self.lemonator.lcd << "\t0203 Enjoy!"
             if not self.lemonator.reflex.get():
-                self.state = States.START
+                self.changeState(States.START)
 
         if self.state == States.MIXING:
-            if self.lemonator.distance.read_mm() > full_cup-10:
+            self.update_display()
+            if self.distance_filter() <  expected_fill:
                 self.disable_pumps()
-                self.state = States.MIX_DONE
+                self.changeState(States.MIX_DONE)
                 return
             else:
-                if self.lemonator.distance.read_mm() < required_sirup_in_mm:
+                if self.distance_filter() > required_sirup_in_mm:
                     self.set_water_pump(0)
                     self.set_sirup_pump(1)
                 else:
                     self.set_water_pump(1)
                     self.set_sirup_pump(0)
-            distance = round((20/100)*(self.lemonator.distance.read_mm() / ((full_cup - 10)/100)))
-            print(distance)
-            self.lemonator.lcd << "\r" + ''.join([str('#') for x in range(1, distance)])
+
+    """
+    Simple implementation of a exponential moving average
+    with a alpha of 0.8
+    """
+    def distance_filter(self, alpha=0.8):
+        value = self.lemonator.distance.read_mm()
+        if value > empty_cup:
+            value = empty_cup
+        if value > self.temp_distance:
+            return self.temp_distance
+        if self.temp_distance-value > 3:
+            return self.temp_distance
+        self.temp_distance  = self.temp_distance * alpha + value * (1 - alpha)
+        return round(self.temp_distance, 2)
 
     def disable_pumps(self) -> None:
         self.set_sirup_pump(0)
@@ -102,6 +133,3 @@ class Controller:
     def set_sirup_pump(self, v) -> None:
         self.lemonator.sirup_valve.set(not v)
         self.lemonator.sirup_pump.set(v)
-
-    def clear_display(self):
-        self.lemonator.lcd << "\f      Lemonator V1.0\n\n"

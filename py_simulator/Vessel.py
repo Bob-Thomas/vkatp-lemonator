@@ -43,8 +43,10 @@ class Vessel:
             self._flowTo.flowIn(amount, self._colour)
 
     def flowIn(self, amount, colour):
-        if self._amount + amount > liquidMax:
+        if self._amount > liquidMax:
             print('ERROR', 'overflow occuring in', type(self))
+            import sys
+            sys.exit()
         else:
             self._colour = (self._colour * self._amount + colour * amount) / (self._amount + amount)
             self._amount += amount
