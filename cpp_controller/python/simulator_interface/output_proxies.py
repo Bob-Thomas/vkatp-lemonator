@@ -1,5 +1,5 @@
-from Vessel import Vessel, MixtureVessel
-from Constants import *
+from ..Vessel import Vessel, MixtureVessel
+from ..Constants import *
 
 class Effector:
     def __init__(self):

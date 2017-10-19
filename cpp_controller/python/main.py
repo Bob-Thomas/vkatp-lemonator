@@ -20,7 +20,8 @@ if __name__ == "__main__":
         print("Usage: python main.py [simulator|proxy]")
         sys.exit()
     if sys.argv[0] == 'simulator':
-        Simulator(True, sw_lemonator()).run()
+        c = Controller(sw_lemonator())
+        Simulator(True, c).run()
     elif sys.argv[0] == 'proxy':
         c = Controller(hw_lemonator(4))
         time.sleep(2)

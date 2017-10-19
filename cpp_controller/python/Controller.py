@@ -22,8 +22,10 @@ class States(Enum):
     MIX_DONE = 6
     ERROR = 7
 
+
 class Controller:
     temp_distance = empty_cup
+
     def __init__(self, lemonator):
         self.lemonator = lemonator
         self.changeState(States.START)
@@ -45,7 +47,8 @@ class Controller:
         elif self.state == States.CUP_PRESENT or self.state == States.WAITING_FOR_INPUT:
             self.lemonator.lcd << "\r Use keypad to start"
         elif self.state == States.MIXING:
-            distance = round((100/100)*(empty_cup-self.distance_filter()) /diff_liquids*100) or 0
+            distance = round((100 / 100) * (empty_cup -
+                                            self.distance_filter()) / diff_liquids * 100) or 0
             self.lemonator.lcd << "\r      Mix starting  \n"
             self.lemonator.lcd << "\r              " + str(distance) + "%"
         elif self.state == States.MIX_DONE:
@@ -91,7 +94,7 @@ class Controller:
 
         if self.state == States.MIXING:
             self.update_display()
-            if self.distance_filter() <  expected_fill:
+            if self.distance_filter() < expected_fill:
                 self.disable_pumps()
                 self.changeState(States.MIX_DONE)
                 return
@@ -107,16 +110,17 @@ class Controller:
     Simple implementation of a exponential moving average
     with a alpha of 0.8
     """
+
     def distance_filter(self, alpha=0.8):
-        value = self.lemonator.distance.read_mm()
+        value = float(self.lemonator.distance.read_mm())
         if value > empty_cup:
             value = empty_cup
         if value > self.temp_distance:
             return self.temp_distance
-        if self.temp_distance-value > 3:
+        if self.temp_distance - value > 3:
             return self.temp_distance
-        self.temp_distance  = self.temp_distance * alpha + value * (1 - alpha)
-        return round(self.temp_distance, 2)
+        self.temp_distance = self.temp_distance * alpha + value * (1 - alpha)
+        return self.temp_distance
 
     def disable_pumps(self) -> None:
         self.set_sirup_pump(0)
@@ -129,3 +133,6 @@ class Controller:
     def set_sirup_pump(self, v) -> None:
         self.lemonator.sirup_valve.set(not v)
         self.lemonator.sirup_pump.set(v)
+
+    def get_lemonator(self):
+        return self.lemonator

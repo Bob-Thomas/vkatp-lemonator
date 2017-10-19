@@ -5,7 +5,8 @@
 # Embedded file name: .\Vessel.py
 # Compiled at: 2017-08-29 15:46:48
 # Size of source mod 2**32: 2437 bytes
-from Constants import *
+from .Constants import *
+
 
 class Vessel:
     """ Class to describe containers of liquids;
@@ -48,7 +49,8 @@ class Vessel:
             import sys
             sys.exit()
         else:
-            self._colour = (self._colour * self._amount + colour * amount) / (self._amount + amount)
+            self._colour = (self._colour * self._amount +
+                            colour * amount) / (self._amount + amount)
             self._amount += amount
 
     def update(self):
@@ -62,13 +64,15 @@ class MixtureVessel(Vessel):
     """
 
     def __init__(self, amount=0, max_liquid=full_cup, colour=0, temperature=20):
-        Vessel.__init__(self, amount,max_liquid, colour, temperature)
+        Vessel.__init__(self, amount, max_liquid, colour, temperature)
         self._heat = False
+        self._present = 0
 
     def heat(self, state=False):
         self._heat = state
 
     def empty(self):
+        self._present = not self._present
         self._amount = 0
 
     def update(self):
