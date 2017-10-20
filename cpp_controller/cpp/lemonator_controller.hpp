@@ -20,6 +20,7 @@ class lemonator_controller
     float temp_distance = empty_cup;
     lemonator_interface &lemonator;
     State state = State::START;
+    uint64_t update_time = 0;
 
     lemonator_controller(lemonator_interface &lemonator);
 
@@ -36,6 +37,7 @@ class lemonator_controller
     void set_water_pump(int v);
 
     void update();
+
     simulator_lemonator_proxy &get_lemonator();
 };
 

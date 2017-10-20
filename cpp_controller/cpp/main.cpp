@@ -172,13 +172,12 @@ int main(int argc, char *argv[])
     else if (strcmp(argv[1], "Proxy") == 0)
     {
         lemonator_proxy prox(4);
+        hwlib::wait_ms(2000);
         lemonator_controller lem(prox);
         while (1)
         {
             lem.update();
         }
     }
-    // Print the user's name:
-    std::cout << argv[0] << "says hello, " << argv[1] << "!" << std::endl;
     return 0;
 }

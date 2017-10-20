@@ -3,35 +3,37 @@
 void lemonator_controller::change_state(State s)
 {
     state = s;
-    update_display();
 }
 
 void lemonator_controller::update_display()
 {
-    lemonator.lcd << "\t0002                    ";
-    lemonator.lcd << "\t0003                    ";
-    if (state == State::WAITING_FOR_CUP)
+    if (hwlib::now_us() - update_time > 1000000 * 2)
     {
-        lemonator.lcd << "\t0001Insert cup";
-    }
-    else if (state == State::CUP_PRESENT || state == State::WAITING_FOR_INPUT)
-    {
-        lemonator.lcd << "\t0001Use keypad to start ";
-    }
-    else if (state == State::MIXING)
-    {
-        lemonator.lcd << "\t0001\r      Mix starting  \n";
-        lemonator.lcd << "\r              \n";
-        int distance = ((float)100 / (float)100) * ((float)empty_cup - distance_filter()) / (float)diff_liquids * (float)100;
-        std::cout << distance << "\n";
-        lemonator.lcd << distance;
-        lemonator.lcd << "%";
-    }
-    else if (state == State::MIX_DONE)
-    {
-        lemonator.lcd << "\t0001                   ";
-        lemonator.lcd << "\t0002    Please take.   ";
-        lemonator.lcd << "\t0003    And Enjoy! :3  ";
+        update_time = hwlib::now_us();
+        lemonator.lcd << "\t0002                    ";
+        lemonator.lcd << "\t0003                    ";
+        if (state == State::WAITING_FOR_CUP)
+        {
+            lemonator.lcd << "\t0001Insert cup";
+        }
+        else if (state == State::CUP_PRESENT || state == State::WAITING_FOR_INPUT)
+        {
+            lemonator.lcd << "\t0001Use keypad to start ";
+        }
+        else if (state == State::MIXING)
+        {
+            lemonator.lcd << "\t0001\r      Mix starting  \n";
+            lemonator.lcd << "\r              \n";
+            int distance = ((float)100 / (float)100) * ((float)empty_cup - distance_filter()) / (float)diff_liquids * (float)100;
+            lemonator.lcd << distance;
+            lemonator.lcd << "%";
+        }
+        else if (state == State::MIX_DONE)
+        {
+            lemonator.lcd << "\t0001                   ";
+            lemonator.lcd << "\t0002    Please take.   ";
+            lemonator.lcd << "\t0003    And Enjoy! :3  ";
+        }
     }
 }
 
@@ -43,6 +45,10 @@ float lemonator_controller::distance_filter()
     {
         value = empty_cup;
     }
+    // if (value < expected_fill)
+    // {
+    //     value = expected_fill;
+    // }
     if (value > temp_distance)
     {
         return temp_distance;
@@ -52,7 +58,6 @@ float lemonator_controller::distance_filter()
         return temp_distance;
     }
     temp_distance = temp_distance * alpha + (float)value * (1 - alpha);
-    std::cout << "value: " << value << " EMA: " << temp_distance << "\n";
     return temp_distance;
 }
 
@@ -137,7 +142,6 @@ void lemonator_controller::update()
 
     if (state == State::MIXING)
     {
-        update_display();
         if (distance_filter() < expected_fill)
         {
             change_state(State::MIX_DONE);
@@ -158,6 +162,7 @@ void lemonator_controller::update()
             }
         }
     }
+    update_display();
 }
 
 simulator_lemonator_proxy &lemonator_controller::get_lemonator()
