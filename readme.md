@@ -14,6 +14,15 @@ Previous homework already supplied us with a Simulator working with a pygame GUI
 So we decided to repurpose it and tweak it to work with our needs
 > hindsight it took so much more effort to tweak than to actually build our own
 
+In the cpp_controller folder is where the application lives.  
+
+* cpp_controller/cpp is the c++ environment.
+* cpp_controller/python is the python environment.  
+
+Most things you will find their are written from the ground up.  
+Only the `Gui.py`, `Simulator.Py`, `Vessel.py` got reworked into being conform our model.  
+Which actually took more time to hack our stuff into it than if we would have build a new simulator.
+
 ### Simulator
 ![Imgur](https://i.imgur.com/wllw8ei.png)
 
