@@ -1,6 +1,6 @@
 
 """Constants for physical simulation"""
-flowRate = 0.8          # the amount of water flowing (in ml) from the mixture vessel per second when tap is open
+flowRate = 1         # the amount of water flowing (in ml) from the mixture vessel per second when tap is open
 # the amount of heat increase (in degrees celsius) in mixture vessel when heater is on
 heatRate = 1
 # amount of temperature loss (in degrees celsius) in mixture vessel when heater is off

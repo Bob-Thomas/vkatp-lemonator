@@ -5,7 +5,7 @@
 # Embedded file name: .\Vessel.py
 # Compiled at: 2017-08-29 15:46:48
 # Size of source mod 2**32: 2437 bytes
-from .Constants import *
+from Constants import *
 
 
 class Vessel:
@@ -44,10 +44,8 @@ class Vessel:
             self._flowTo.flowIn(amount, self._colour)
 
     def flowIn(self, amount, colour):
-        if self._amount > liquidMax:
+        if self._amount + flowRate > self._max_liquid:
             print('ERROR', 'overflow occuring in', type(self))
-            import sys
-            sys.exit()
         else:
             self._colour = (self._colour * self._amount +
                             colour * amount) / (self._amount + amount)
@@ -69,7 +67,8 @@ class MixtureVessel(Vessel):
         self._present = 0
 
     def heat(self, state=False):
-        self._heat = state
+        # No more heat only lemonate
+        pass
 
     def empty(self):
         self._present = not self._present
@@ -80,7 +79,10 @@ class MixtureVessel(Vessel):
         Updates the state of the mixture vessel depending on the state of the effectors.
         constants (flowRate, heatRate, temperatureDecay) defined in Constants.py
         """
-        if self._heat:
-            self._temperature += heatRate
-        elif self._temperature > environmentTemp:
-            self._temperature -= temperatureDecay
+        pass
+
+        # No more heat only lemonate
+        # if self._heat:
+        #     self._temperature += heatRate
+        # elif self._temperature > environmentTemp:
+        #     self._temperature -= temperatureDecay

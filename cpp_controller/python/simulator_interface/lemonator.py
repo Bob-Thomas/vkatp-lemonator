@@ -1,5 +1,6 @@
-from .sensor_proxies import *
-from .output_proxies import *
+import sys
+from simulator_interface.sensor_proxies import *
+from simulator_interface.output_proxies import *
 
 
 class lcd_proxy():
@@ -19,43 +20,42 @@ class Lcd(lcd_proxy):
         lcd_proxy.__init__(self)
 
     def putc(self, c):
-        if self.position_state == 'x':
-            self.index[1] = c
-            self.position_state = 'xx'
-            return
-        if self.position_state == 'xx':
-            self.index[1] = int(str(self.index[1]) + c)
-            self.position_state = 'y'
-            return
-        if self.position_state == 'y':
-            self.index[0] = c
-            self.position_state = 'yy'
-            return
-        if self.position_state == 'yy':
-            self.index[0] = int(str(self.index[0]) + c)
-            self.position_state = False
-            return
-        if c == '\f':
-            self._text = ['                    '] * 4
-            self.index = [0, 0]
-            return
-        if c == '\n':
-            self.index = [self.index[0] + 1, 0]
-            return
-        if c == '\r':
-            self.index = [self.index[0], 0]
-            return
-        if c == '\t':
-            self.position_state = 'x'
-            return
-        if c:
+        try:
+            if self.position_state == 'x':
+                self.index[1] = c
+                self.position_state = 'xx'
+                return
+            if self.position_state == 'xx':
+                self.index[1] = int(str(self.index[1]) + c)
+                self.position_state = 'y'
+                return
+            if self.position_state == 'y':
+                self.index[0] = c
+                self.position_state = 'yy'
+                return
+            if self.position_state == 'yy':
+                self.index[0] = int(str(self.index[0]) + c)
+                self.position_state = False
+                return
+            if c == '\f':
+                self._text = ['                    '] * 4
+                self.index = [0, 0]
+                return
+            if c == '\n':
+                self.index = [self.index[0] + 1, 0]
+                return
+            if c == '\r':
+                self.index = [self.index[0], 0]
+                return
+            if c == '\t':
+                self.position_state = 'x'
+                return
             new_text = list(self._text[self.index[0]])
             new_text[self.index[1]] = c
-            try:
-                self.index[1] += 1
-                self._text[self.index[0]] = new_text
-            except IndexError as e:
-                print("index out of range")
+            self.index[1] += 1
+            self._text[self.index[0]] = new_text
+        except IndexError as e:
+            print("Index out of range")
 
     def __lshift__(self, other):
         for i in other:

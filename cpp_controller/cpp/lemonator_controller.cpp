@@ -14,7 +14,7 @@ void lemonator_controller::update_display()
         lemonator.lcd << "\t0003                    ";
         if (state == State::WAITING_FOR_CUP)
         {
-            lemonator.lcd << "\t0001Insert cup";
+            lemonator.lcd << "\t0001Please insert cup";
         }
         else if (state == State::CUP_PRESENT || state == State::WAITING_FOR_INPUT)
         {
@@ -24,7 +24,7 @@ void lemonator_controller::update_display()
         {
             lemonator.lcd << "\t0001\r      Mix starting  \n";
             lemonator.lcd << "\r              \n";
-            int distance = ((float)100 / (float)100) * ((float)empty_cup - distance_filter()) / (float)diff_liquids * (float)100;
+            int distance = ((float)100 / (float)100) * ((float)config::empty_cup - distance_filter()) / (float)config::diff_liquids * (float)100;
             lemonator.lcd << distance;
             lemonator.lcd << "%";
         }
@@ -39,16 +39,12 @@ void lemonator_controller::update_display()
 
 float lemonator_controller::distance_filter()
 {
-    float alpha = 0.7;
+    float alpha = 0.8;
     int value = lemonator.distance.read_mm();
-    if (value > empty_cup)
+    if (value > config::empty_cup)
     {
-        value = empty_cup;
+        value = config::empty_cup;
     }
-    // if (value < expected_fill)
-    // {
-    //     value = expected_fill;
-    // }
     if (value > temp_distance)
     {
         return temp_distance;
@@ -89,6 +85,7 @@ void lemonator_controller::update()
     distance_filter();
     if (state == State::START)
     {
+        temp_distance = (float)config::full_cup;
         if (lemonator.reflex.get())
         {
             change_state(State::CUP_PRESENT);
@@ -142,7 +139,7 @@ void lemonator_controller::update()
 
     if (state == State::MIXING)
     {
-        if (distance_filter() < expected_fill)
+        if (distance_filter() < config::expected_fill)
         {
             change_state(State::MIX_DONE);
             disable_pumps();
@@ -150,7 +147,7 @@ void lemonator_controller::update()
         }
         else
         {
-            if (distance_filter() > required_sirup_in_mm)
+            if (distance_filter() > config::required_sirup_in_mm)
             {
                 set_water_pump(0);
                 set_sirup_pump(1);

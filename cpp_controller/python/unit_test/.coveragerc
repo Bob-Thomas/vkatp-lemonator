@@ -1,0 +1,11 @@
+[run]
+omit =
+    ../Gui.py
+    ../Simulator.py
+branch = True
+
+[report]
+exclude_lines =
+    pass
+    if __name__ == '__main__':
+

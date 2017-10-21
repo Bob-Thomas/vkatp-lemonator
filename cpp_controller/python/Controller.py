@@ -9,7 +9,7 @@ import time
 from enum import Enum
 from typing import Dict
 
-from Constants import diff_liquids, empty_cup, expected_fill, full_cup, required_sirup_in_mm
+from Constants import diff_liquids, empty_cup, expected_fill, full_cup, required_sirup_in_mm, flowRate
 
 
 class States(Enum):
@@ -43,43 +43,45 @@ class Controller:
         self.lemonator.lcd << "\t0000     Lemonator v1.0\n"
 
         if self.state == States.WAITING_FOR_CUP:
-            self.lemonator.lcd << "\r Please insert cup  "
+            self.lemonator.lcd << "\t0001Please insert cup"
         elif self.state == States.CUP_PRESENT or self.state == States.WAITING_FOR_INPUT:
-            self.lemonator.lcd << "\r Use keypad to start"
+            self.lemonator.lcd << "\t0001Use keypad to start "
         elif self.state == States.MIXING:
+            self.lemonator.lcd << "\t0001\r      Mix starting  \n"
             distance = round((100 / 100) * (empty_cup -
                                             self.distance_filter()) / diff_liquids * 100) or 0
-            self.lemonator.lcd << "\r      Mix starting  \n"
-            self.lemonator.lcd << "\r              " + str(distance) + "%"
+            self.lemonator.lcd << str(distance)
+            self.lemonator.lcd << "%"
         elif self.state == States.MIX_DONE:
-            self.lemonator.lcd << "\t0103 Please take."
-            self.lemonator.lcd << "\t0203 And Enjoy! :3"
+
+            self.lemonator.lcd << "\t0002 Please take."
+            self.lemonator.lcd << "\t0003 And Enjoy! :3"
 
     def update(self) -> None:
         if self.state == States.START:
+            self.temp_distance = full_cup
             if self.lemonator.reflex.get():
                 self.changeState(States.CUP_PRESENT)
             else:
                 self.changeState(States.NO_CUP)
-
-        if self.state == States.MIXING and not self.lemonator.reflex.get():
+        elif self.state == States.MIXING and not self.lemonator.reflex.get():
             self.changeState(States.NO_CUP)
 
-        if self.state == States.CUP_PRESENT:
+        elif self.state == States.CUP_PRESENT:
             self.changeState(States.WAITING_FOR_INPUT)
             self.lemonator.led_green.set(1)
 
-        if self.state == States.NO_CUP:
+        elif self.state == States.NO_CUP:
             self.changeState(States.WAITING_FOR_CUP)
             self.lemonator.led_green.set(0)
             self.disable_pumps()
             self.temp_distance = 88
 
-        if self.state == States.WAITING_FOR_CUP:
+        elif self.state == States.WAITING_FOR_CUP:
             if self.lemonator.reflex.get():
                 self.changeState(States.CUP_PRESENT)
 
-        if self.state == States.WAITING_FOR_INPUT:
+        elif self.state == States.WAITING_FOR_INPUT:
             if not self.lemonator.reflex.get():
                 self.changeState(States.NO_CUP)
                 return
@@ -88,11 +90,11 @@ class Controller:
                 self.changeState(States.MIXING)
                 return
 
-        if self.state == States.MIX_DONE:
+        elif self.state == States.MIX_DONE:
             if not self.lemonator.reflex.get():
                 self.changeState(States.START)
 
-        if self.state == States.MIXING:
+        else:
             self.update_display()
             if self.distance_filter() < expected_fill:
                 self.disable_pumps()
@@ -111,13 +113,14 @@ class Controller:
     with a alpha of 0.8
     """
 
-    def distance_filter(self, alpha=0.8):
+    def distance_filter(self):
+        alpha = 0.8
         value = float(self.lemonator.distance.read_mm())
         if value > empty_cup:
             value = empty_cup
         if value > self.temp_distance:
             return self.temp_distance
-        if self.temp_distance - value > 3:
+        if self.temp_distance - value > 5:
             return self.temp_distance
         self.temp_distance = self.temp_distance * alpha + value * (1 - alpha)
         return self.temp_distance

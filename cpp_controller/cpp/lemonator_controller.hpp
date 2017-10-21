@@ -17,7 +17,7 @@ enum class State
 class lemonator_controller
 {
   public:
-    float temp_distance = empty_cup;
+    float temp_distance = (float)config::empty_cup;
     lemonator_interface &lemonator;
     State state = State::START;
     uint64_t update_time = 0;

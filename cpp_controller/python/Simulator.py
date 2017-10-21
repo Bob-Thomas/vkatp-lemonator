@@ -5,13 +5,13 @@
 # Embedded file name: .\Simulator.py
 # Compiled at: 2017-08-30 16:00:41
 # Size of source mod 2**32: 3405 bytes
-from .Vessel import Vessel, MixtureVessel
-from .Constants import *
-from .Gui import GUI
+from Vessel import Vessel, MixtureVessel
+from Constants import *
+from Gui import GUI
 from typing import Dict
 import time
 
-from .simulator_interface.lemonator import Lemonator
+from simulator_interface.lemonator import Lemonator
 
 
 class Plant:
@@ -46,17 +46,6 @@ class Plant:
         if self._lemonator.water_pump.get() and not self._lemonator.water_valve.get():
             self._vessels['b'].flow()
 
-    # ROBBIE UPDATE THIS XD
-    def printState(self) -> None:
-        pass
-        # for sensor in self._sensors.values():
-        #     print('type:', type(sensor), 'value:',
-        #           sensor.readValue(), '->', sensor.measure())
-
-        # for effector in self._effectors.values():
-        #     print('type:', type(effector), 'value:',
-        #           'on' if effector.isOn() else 'off')
-
 
 class Simulator:
 
@@ -83,12 +72,17 @@ class Simulator:
                 time.sleep(1)
                 print(timestamp, '-' * 40)
                 self._Simulator__plant.update()
-                self._Simulator__controller.update()
-                self._Simulator__plant.printState()
+                self.__Simulator__controller.update()
                 self._Simulator__monitor.update()
 
         else:
             self._Simulator__gui.run()
+
+    def step(self) -> None:
+        self._Simulator__plant.update()
+        self.__Simulator__controller.update()
+        self._Simulator__plant.printState()
+        self._Simulator__monitor.update()
 
 
 class Monitor:
@@ -104,12 +98,6 @@ class Monitor:
         self._effectorValues['water_pump'] = []
         self._effectorValues['sirup_pump'] = []
 
-        # for sensor in self._Monitor__sensors:
-        #     self._sensorReadings[sensor] = []
-
-        # for effector in self._Monitor__effectors:
-        #     self._effectorValues[effector] = []
-
     def update(self) -> None:
         self._sensorReadings['distance'].append(
             self._Monitor_controller.distance_filter()
@@ -121,11 +109,13 @@ class Monitor:
         self._effectorValues['sirup_pump'].append(
             self._Monitor_lemonator.sirup_pump.get()
         )
-        # for effector in self._Monitor__effectors:
-        #     self._effectorValues[effector].append(
-        #         self._Monitor__effectors[effector].isOn())
+        self.print_state()
 
-
-if __name__ == '__main__':
-    simulator = Simulator(True)
-    simulator.run()
+    def print_state(self) -> None:
+        mergy = {**self._effectorValues, **self._sensorReadings}
+        for i in range(len(self._sensorReadings['distance'])):
+            print('%s -> %d | %s -> %d | %s -> %d' % (
+                "Distance", self._sensorReadings['distance'][i],
+                "Water pump", self._effectorValues['water_pump'][i],
+                'Sirup pump', self._effectorValues['sirup_pump'][i])
+            )

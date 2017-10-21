@@ -1,7 +1,7 @@
 import pygame
 from pygame import *
-from .Constants import *
-from .Vessel import Vessel
+from Constants import *
+from Vessel import Vessel
 from time import sleep
 from typing import *
 
@@ -208,8 +208,6 @@ class GUI:
         self.__plant.update()
         self.__controller.update()
         self.__monitor.update()
-        if self.__tap:
-            self.__plant._vessels["mix"].flow()
 
     def run(self) -> None:
         while True:
