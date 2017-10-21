@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
 
         py::object l = py::module::import("simulator_proxy").attr("lemonator")();
         py::object c = py::module::import("controller_proxy").attr("Controller")(l.cast<simulator_lemonator_proxy &>());
-        py::object dave = py::module::import("python.Simulator").attr("Simulator")(true, c).attr("run")();
+        py::object sim = py::module::import("python.Simulator").attr("Simulator")(true, c).attr("run")();
     }
     else if (strcmp(argv[1], "Proxy") == 0)
     {
