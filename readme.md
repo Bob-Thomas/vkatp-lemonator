@@ -14,6 +14,9 @@ Previous homework already supplied us with a Simulator working with a pygame GUI
 So we decided to repurpose it and tweak it to work with our needs
 > hindsight it took so much more effort to tweak than to actually build our own
 
+### Simulator
+![Imgur](https://i.imgur.com/wllw8ei.png)
+
 ### Proxy
 The teacher prepared a proxy interface to use the same interface as the hardware used but instead of setting pins it would send a command over the serial port to the arduino listening to it.
 
@@ -25,10 +28,12 @@ That interface was however written in c++ and we needed to use it in our python 
 The first implementation of creating a pyd file to use in python is found here ->
 [Pybind11 module binding to pyd](https://github.com/Bob-Thomas/vkatp-lemonator/blob/master/pc_python/lemonator.cpp)
 
-So that was our first assesment after that we needed to write a control system that would mix our 2 liquids together with a set amount of (lemonade and water) -> [Python controller](https://github.com/Bob-Thomas/vkatp-lemonator/blob/master/cpp_controller/python/Controller.py)
+So that was our first assesment after that we needed to write a control system that would mix our 2 liquids together with a set amount of (lemonade and water) -> [Python controller](https://github.com/Bob-Thomas/vkatp-lemonator/blob/master/cpp_controller/python/Controller.py)  
+
 This controller needed to work conform the proxy interface so it can be used in our simulator and with the actual hardware interface.
 
-After that was working nicely we wrote the tests for it [Tests](https://github.com/Bob-Thomas/vkatp-lemonator/tree/master/cpp_controller/python/unit_test)
+After that was working nicely we wrote the tests for it -> [Tests](https://github.com/Bob-Thomas/vkatp-lemonator/tree/master/cpp_controller/python/unit_test)  
+
 So our prototype was working on our simulator and on the actual hardware.
 
 ### C++ controller
