@@ -34,6 +34,8 @@ This controller needed to work conform the proxy interface so it can be used in 
 
 After that was working nicely we wrote the tests for it -> [Tests](https://github.com/Bob-Thomas/vkatp-lemonator/tree/master/cpp_controller/python/unit_test)  
 
+![coverage](https://i.imgur.com/m1ag9el.png)
+
 So our prototype was working on our simulator and on the actual hardware.
 
 ### C++ controller
