@@ -162,10 +162,13 @@ int main(int argc, char *argv[])
     if (strcmp(argv[1], "Simulator") == 0)
     {
         Py_Initialize();
+
+        //include my venv pygame and the python folder with all the lemonator modules
         py::module sys = py::module::import("sys");
         py::object path = sys.attr("path");
         path.attr("insert")(0, "C:\\Users\\endargon\\school\\lemonator\\venv\\Lib\\site-packages");
         path.attr("insert")(0, "python");
+
         py::object l = py::module::import("simulator_proxy").attr("lemonator")();
         py::object c = py::module::import("controller_proxy").attr("Controller")(l.cast<simulator_lemonator_proxy &>());
         py::object dave = py::module::import("python.Simulator").attr("Simulator")(true, c).attr("run")();
